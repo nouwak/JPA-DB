@@ -18,4 +18,4 @@ Konfiguracja
 Po wykonaniu tych kroków projekt powinien działać
 
 
-* Zamiast wykonywać te kroki można edytować plik persistence.xml, podając odpowiednie dane już istniejącej bazy i użytkownika
+(*) Zamiast wykonywać te kroki można edytować plik persistence.xml, podając odpowiednie dane już istniejącej bazy i użytkownika
