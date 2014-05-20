@@ -22,6 +22,26 @@ public class ForumPost {
 	@Column(columnDefinition="nvarchar(MAX)")
 	private String content;
 	
+	public String getContent() {
+		return content;
+	}
+
+	public void setThread(ForumThread thread) {
+		this.thread = thread;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setCreationDate(Calendar creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public void setPostAuthor(ForumUser postAuthor) {
+		this.postAuthor = postAuthor;
+	}
+
 	@Column
 	private Calendar creationDate;
 	
