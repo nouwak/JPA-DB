@@ -18,22 +18,28 @@ public class Parser extends DefaultHandler {
 	List<ForumPost> posts;
 	Set<ForumThread> threads;
 	Set<ForumUser> users;
+
 	String currentElement = "";
+	StringBuilder currentText = new StringBuilder();
+
 	ForumThread currentThread = new ForumThread();
 	ForumUser currentUser = new ForumUser();
 	ForumPost currentPost = new ForumPost();
 
 	@Override
 	public void endDocument() throws SAXException {
-		//posts.get(0);
-		// TODO zapis do bazy
+		// posts.get(0);
+
 	}
 
 	public List<ForumPost> getPosts() {
 		return posts;
 	}
 
-	
+	public static void main(String[] args) throws Exception {
+		Parser par = new Parser();
+		par.parse();
+	}
 
 	@Override
 	public void startDocument() throws SAXException {
@@ -58,27 +64,35 @@ public class Parser extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
+		if (!currentElement.isEmpty()) {
+
+			process(currentText);
+
+		}
 		if (localName.equals("task_result")) {
-		
-			threads.add(currentThread);
-			users.add(currentUser);
-			posts.add(currentPost);
-			
-			ForumUser linkedUser=getUser(currentUser);
-			
-			currentPost.setPostAuthor(linkedUser);
-			currentThread.setAuthor(linkedUser);
-			
-			ForumThread linkedThread=getThread(currentThread);
-			
-			currentPost.setThread(linkedThread);
-			
-			currentThread = new ForumThread();
-			currentUser = new ForumUser();
-			currentPost = new ForumPost();
-			// TODO koniec danych postu
+			saveData();
 		}
 		currentElement = "";
+		currentText = new StringBuilder();
+	}
+
+	private void saveData() {
+		threads.add(currentThread);
+		users.add(currentUser);
+		posts.add(currentPost);
+
+		ForumUser linkedUser = getUser(currentUser);
+
+		currentPost.setPostAuthor(linkedUser);
+		currentThread.setAuthor(linkedUser);
+
+		ForumThread linkedThread = getThread(currentThread);
+
+		currentPost.setThread(linkedThread);
+
+		currentThread = new ForumThread();
+		currentUser = new ForumUser();
+		currentPost = new ForumPost();
 	}
 
 	public Set<ForumThread> getThreads() {
@@ -91,9 +105,9 @@ public class Parser extends DefaultHandler {
 
 	private ForumThread getThread(ForumThread currentThread2) {
 		Iterator<ForumThread> iterator = threads.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			ForumThread forumThread = iterator.next();
-			if(currentThread2.equals(forumThread)){
+			if (currentThread2.equals(forumThread)) {
 				return forumThread;
 			}
 		}
@@ -102,9 +116,9 @@ public class Parser extends DefaultHandler {
 
 	private ForumUser getUser(ForumUser currentUser2) {
 		Iterator<ForumUser> iterator = users.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			ForumUser forumUser = iterator.next();
-			if(currentUser2.equals(forumUser)){
+			if (currentUser2.equals(forumUser)) {
 				return forumUser;
 			}
 		}
@@ -121,15 +135,12 @@ public class Parser extends DefaultHandler {
 
 	@Override
 	public void characters(char[] ch, int start, int len) throws SAXException {
-		// TODO Auto-generated method stub
 		if (!currentElement.isEmpty()) {
-			// System.out.println(currentElement + " ");
-			String content = String.copyValueOf(ch, start, len);
-			process(content);
+			currentText.append(ch, start, len);
 		}
 	}
 
-	private void process(String content) {
+	private void process(StringBuilder content) {
 		if (currentElement.equals("thread-title")) {
 			processThreadTitle(content);
 		} else if (currentElement.equals("user-data")) {
@@ -144,7 +155,7 @@ public class Parser extends DefaultHandler {
 
 	}
 
-	private void processPostDetails(String content) {
+	private void processPostDetails(StringBuilder content) {
 		Pattern pattern = Pattern.compile("Wysłany: ([^\\n]+)\\n");
 		Matcher matcher = pattern.matcher(content);
 		if (matcher.find()) {
@@ -185,16 +196,16 @@ public class Parser extends DefaultHandler {
 
 	}
 
-	private void processPostContent(String content) {
-		if (currentPost.getContent() == null
-				|| currentPost.getContent().isEmpty()) {
-			currentPost.setContent(content);
-		} else {
-			currentPost.setContent(currentPost.getContent() + content);
+	private void processPostContent(StringBuilder content) {
+
+		if (content.toString().isEmpty()) {
+			content.toString();
 		}
+		currentPost.setContent(content.toString());
+
 	}
 
-	private void processUserLogin(String content) {
+	private void processUserLogin(StringBuilder content) {
 		Pattern pattern = Pattern.compile("([^\\n]+)\\n");
 		Matcher matcher = pattern.matcher(content);
 		if (matcher.find()) {
@@ -207,32 +218,25 @@ public class Parser extends DefaultHandler {
 
 	}
 
-	private void processUserData(String content) {
-		Pattern pattern = Pattern.compile("Dołączył\\(a\\): ([^\\n]+)");
+	private void processUserData(StringBuilder content) {
+		Pattern pattern = Pattern.compile("Dołączył\\(a\\): ([^\\n]+)\\n");
 		Matcher matcher = pattern.matcher(content);
 		if (matcher.find()) {
 			String date = matcher.group(1);
 			if (!date.isEmpty()) {
-				try {
-					int day = Integer.valueOf(date.substring(0, 2));
-					int month = monthToInt(date.substring(3, 6));
-					int year = Integer.valueOf(date.substring(7, 11));
-					Calendar dataCalendar = Calendar.getInstance();
-					dataCalendar.set(year, month, day);
-					currentUser.setJoiningDate(dataCalendar);
-				} catch (Exception e) {
-					int day = 7;
-					int month = 2;
-					int year = 1998;
-					Calendar dataCalendar = Calendar.getInstance();
-					dataCalendar.set(year, month, day);
-					currentUser.setJoiningDate(dataCalendar);
-				}
+
+				int day = Integer.valueOf(date.substring(0, 2));
+				int month = monthToInt(date.substring(3, 6));
+				int year = Integer.valueOf(date.substring(7, 11));
+				Calendar dataCalendar = Calendar.getInstance();
+				dataCalendar.set(year, month, day);
+				currentUser.setJoiningDate(dataCalendar);
+
 			}
 
 		}
 
-		pattern = Pattern.compile("Skąd: ([^\\n]+)");
+		pattern = Pattern.compile("Skąd: ([^\\n]+)\\n");
 		matcher = pattern.matcher(content);
 		if (matcher.find()) {
 			String city = matcher.group(1);
@@ -271,8 +275,8 @@ public class Parser extends DefaultHandler {
 		}
 	}
 
-	private void processThreadTitle(String content) {
-		Pattern pattern = Pattern.compile("Temat: ((\\S)+)\\n");
+	private void processThreadTitle(StringBuilder content) {
+		Pattern pattern = Pattern.compile("Temat: ([^\\n]+)\\n");
 		Matcher matcher = pattern.matcher(content);
 		if (matcher.find()) {
 			String title = matcher.group(1);
