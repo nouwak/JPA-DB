@@ -16,7 +16,7 @@ public class UserInMostThreads extends QueryTester {
 	@Override
 	public void executeQuery() {
 		resultList = entityManager.createNativeQuery(
-				"select f.login, COUNT(*) as number " + "from "
+				"select f.login, COUNT(*) from "
 						+ "(select  fu.login, thread "
 						+ "from ForumPost as fp "
 						+ "inner join ForumUser as fu "

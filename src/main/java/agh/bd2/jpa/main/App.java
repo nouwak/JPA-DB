@@ -36,11 +36,13 @@ public class App {
 				.createEntityManager();
 
 		FileWriter out = new FileWriter("performance.csv");
+                
+                String message = "Operation,time (ns)\n";
 
-		System.out.println("Operation,time (ns)");
-		out.write("Operation,time (ns)\n");
+		System.out.print(message);
+		out.write(message);
 
-//		initializeDatabaseFromXML(entityManager, out);
+ 		initializeDatabaseFromXML(entityManager, out);
 		testPerformance(entityManager, out);
 
 		entityManager.close();
@@ -67,9 +69,9 @@ public class App {
 		
 		tester.printResult();
 
-		String queryTime = String.valueOf(endTime - startTime);
-		System.out.println(tester.getName() + "," + queryTime);
-		out.write(tester.getName() + "," + queryTime + "\n");
+                String message = tester.getName() + "," + String.valueOf(endTime - startTime) + "\n";
+		System.out.print(message);
+		out.write(message);
 	}
 
 	private static void initializeDatabaseFromXML(EntityManager entityManager,

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
 
 @Entity
 public class ForumUser {
@@ -68,5 +69,6 @@ public class ForumUser {
 	private String city;
 	
 	@Column
+        @Temporal(javax.persistence.TemporalType.DATE)
 	private Calendar joiningDate;
 }

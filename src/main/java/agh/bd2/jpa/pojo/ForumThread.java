@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
 
 @Entity
 public class ForumThread {
@@ -19,6 +20,7 @@ public class ForumThread {
 	private String title;
 	
 	@Column
+        @Temporal(javax.persistence.TemporalType.DATE)
 	private Calendar creationDate;
 	
 	@ManyToOne

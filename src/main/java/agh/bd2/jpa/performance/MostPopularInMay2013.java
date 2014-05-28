@@ -16,7 +16,7 @@ public class MostPopularInMay2013 extends QueryTester {
 	public void executeQuery() {
 		resultList = entityManager
 				.createQuery(
-						"select ft.title, COUNT(ft.title) as number "
+						"select ft.title, COUNT(*) "
 								+ "from ForumPost as fp "
 								+ "inner join fp.thread as ft "
 								+ "where (YEAR(fp.creationDate)=2013) and (MONTH(fp.creationDate)=5) "
@@ -30,6 +30,5 @@ public class MostPopularInMay2013 extends QueryTester {
 		Object[] tuple = (Object[]) resultList.get(0);
 		String result = (String) tuple[0];
 		System.out.println(this.getName() + " result: " + result);
-
 	}
 }

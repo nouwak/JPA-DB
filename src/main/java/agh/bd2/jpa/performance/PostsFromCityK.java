@@ -16,9 +16,10 @@ public class PostsFromCityK extends QueryTester {
 	@Override
 	public void executeQuery() {
 		results = entityManager.createQuery(
-				"select COUNT(*) " + "from ForumPost as fp "
+				"select COUNT(*) from ForumPost as fp "
 						+ "inner join fp.postAuthor as fu "
-						+ "where fu.city like 'K%'").getResultList();
+						+ "where fu.city like 'K%'")
+                        .getResultList();
 
 	}
 
