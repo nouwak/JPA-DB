@@ -14,6 +14,7 @@ import agh.bd2.jpa.performance.PostsFromCityK;
 import agh.bd2.jpa.performance.PostsWithFrodo;
 import agh.bd2.jpa.performance.QueryTester;
 import agh.bd2.jpa.performance.Threads2013Query;
+import agh.bd2.jpa.performance.UserCommentingGreatestNumberOfOtherUsers;
 import agh.bd2.jpa.performance.UserInMostThreads;
 import agh.bd2.jpa.pojo.ForumPost;
 import agh.bd2.jpa.pojo.ForumThread;
@@ -42,7 +43,7 @@ public class App {
 		System.out.print(message);
 		out.write(message);
 
- 		initializeDatabaseFromXML(entityManager, out);
+// 		initializeDatabaseFromXML(entityManager, out);
 		testPerformance(entityManager, out);
 
 		entityManager.close();
@@ -57,6 +58,7 @@ public class App {
 		measureTime(new MostPopularInMay2013(entityManager), out);
 		measureTime(new AveragePostLength(entityManager), out);
 		measureTime(new UserInMostThreads(entityManager), out);
+		measureTime(new UserCommentingGreatestNumberOfOtherUsers(entityManager), out);
 		measureTime(new PostsWithFrodo(entityManager), out);
 		measureTime(new PostsFromCityK(entityManager), out);
 	}

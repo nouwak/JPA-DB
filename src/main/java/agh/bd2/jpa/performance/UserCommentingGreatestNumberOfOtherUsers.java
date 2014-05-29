@@ -14,19 +14,16 @@ public class UserCommentingGreatestNumberOfOtherUsers extends QueryTester {
 
 	@Override
 	public void executeQuery() {
-		resultList = entityManager.createNativeQuery(
-                                                            "select fulogin, COUNT(*) from "
-                                                                + "(SELECT fu.login as fulogin, fta.login as ftalogin "
+		resultList = entityManager
+				.createNativeQuery(
+						"select pod.fulogin, COUNT(*) from "
+								+ "(SELECT fu.login as fulogin, fta.login as ftalogin "
 								+ "from ForumPost as fp "
-								+ "inner join ForumThread as ft "
-                                                                + "on fp.thread = ft.id "
-                                                                + "inner join ForumUser as fta "
-                                                                + "on ft.author = fta.id "
-                                                                + "inner join ForumUser as fu "
-                                                                + "on fp.author = fu.id "
-                                                                + "group by fulogin, ftalogin) "
-								+ "group by fulogin "
-                                                                + "order by 2 desc")
+								+ "inner join ForumThread as ft on fp.thread = ft.id "
+								+ "inner join ForumUser as fta on ft.author_name = fta.id "
+								+ "inner join ForumUser as fu on fp.author = fu.id "
+								+ "group by fu.login, fta.login) as pod "
+								+ "group by pod.fulogin order by 2 desc")
 				.setMaxResults(1).getResultList();
 
 	}
