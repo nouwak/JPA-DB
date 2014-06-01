@@ -1,6 +1,5 @@
 package agh.bd2.jpa.main;
 
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -13,6 +12,7 @@ import agh.bd2.jpa.performance.MostPopularInMay2013;
 import agh.bd2.jpa.performance.PostsFromCityK;
 import agh.bd2.jpa.performance.PostsWithFrodo;
 import agh.bd2.jpa.performance.QueryTester;
+import agh.bd2.jpa.performance.ThirtyFifthMostOftenUsedWordInPost;
 import agh.bd2.jpa.performance.Threads2013Query;
 import agh.bd2.jpa.performance.UserCommentingGreatestNumberOfOtherUsers;
 import agh.bd2.jpa.performance.UserInMostThreads;
@@ -22,6 +22,7 @@ import agh.bd2.jpa.pojo.ForumUser;
 import agh.bd2.jpa.xmlparser.Parser;
 
 public class App {
+	private static final int NUMBER_OF_REPETITIONS = 2;
 	private static EntityManagerFactory entityManagerFactory;
 
 	public static void setUp() {
@@ -37,13 +38,13 @@ public class App {
 				.createEntityManager();
 
 		FileWriter out = new FileWriter("performance.csv");
-                
-                String message = "Operation,time (ns)\n";
+
+		String message = "Operation,time (ns)\n";
 
 		System.out.print(message);
 		out.write(message);
 
-// 		initializeDatabaseFromXML(entityManager, out);
+		// initializeDatabaseFromXML(entityManager, out);
 		testPerformance(entityManager, out);
 
 		entityManager.close();
@@ -58,20 +59,30 @@ public class App {
 		measureTime(new MostPopularInMay2013(entityManager), out);
 		measureTime(new AveragePostLength(entityManager), out);
 		measureTime(new UserInMostThreads(entityManager), out);
-		measureTime(new UserCommentingGreatestNumberOfOtherUsers(entityManager), out);
+		measureTime(
+				new UserCommentingGreatestNumberOfOtherUsers(entityManager),
+				out);
 		measureTime(new PostsWithFrodo(entityManager), out);
 		measureTime(new PostsFromCityK(entityManager), out);
+		measureTime(new ThirtyFifthMostOftenUsedWordInPost(entityManager), out);
 	}
 
 	private static void measureTime(QueryTester tester, FileWriter out)
 			throws IOException {
-		long startTime = System.nanoTime();
-		tester.executeQuery();
-		long endTime = System.nanoTime();
-		
+		long result = 0;
+
+		for (int i = 0; i < NUMBER_OF_REPETITIONS; i++) {
+			long startTime = System.nanoTime();
+			tester.executeQuery();
+			long endTime = System.nanoTime();
+			result += endTime - startTime;
+		}
+		double endResult = (double) result / NUMBER_OF_REPETITIONS;
+
 		tester.printResult();
 
-                String message = tester.getName() + "," + String.valueOf(endTime - startTime) + "\n";
+		String message = tester.getName() + "," + String.valueOf(endResult)
+				+ "\n";
 		System.out.print(message);
 		out.write(message);
 	}
