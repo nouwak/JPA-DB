@@ -46,6 +46,10 @@ public class ForumPost {
 	@Column
         @Temporal(javax.persistence.TemporalType.DATE)
 	private Calendar creationDate;
+
+        public Calendar getCreationDate() {
+            return creationDate;
+        }
 	
 	@ManyToOne
 	@JoinColumn(name="author")

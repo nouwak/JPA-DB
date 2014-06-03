@@ -89,6 +89,11 @@ public class Parser extends DefaultHandler {
 		ForumThread linkedThread = getThread(currentThread);
 
 		currentPost.setThread(linkedThread);
+                
+                if(currentPost.getCreationDate().before(linkedThread.getCreationDate())){
+                    linkedThread.setCreationDate(currentPost.getCreationDate());
+                    linkedThread.setAuthor(linkedUser);
+                }
 
 		currentThread = new ForumThread();
 		currentUser = new ForumUser();
