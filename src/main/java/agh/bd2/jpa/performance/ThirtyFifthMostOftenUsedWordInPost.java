@@ -35,7 +35,7 @@ public class ThirtyFifthMostOftenUsedWordInPost extends QueryTester {
 	private void countWordOccurences() {
 		for (Object obj : resultList) {
 			String content = ((String) obj).toLowerCase();
-			String[] words = content.split("[^A-Za-zęĘóÓśŚłŁżŻźŹćĆńŃ]+");
+			String[] words = content.split("[^A-Za-zęĘóÓąĄśŚłŁżŻźŹćĆńŃ]+");
 			for (String word : words) {
 				if (!word.isEmpty()) {
 					if (wordCounter.containsKey(word)) {
