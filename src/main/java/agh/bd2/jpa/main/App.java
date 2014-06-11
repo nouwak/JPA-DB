@@ -13,6 +13,7 @@ import agh.bd2.jpa.performance.PostsFromCityK;
 import agh.bd2.jpa.performance.PostsWithFrodo;
 import agh.bd2.jpa.performance.QueryTester;
 import agh.bd2.jpa.performance.ThirtyFifthMostOftenUsedWordInPost;
+import agh.bd2.jpa.performance.ThirtyFifthMostOftenUsedWordInPostByDatabase;
 import agh.bd2.jpa.performance.Threads2013Query;
 import agh.bd2.jpa.performance.UserCommentingGreatestNumberOfOtherUsers;
 import agh.bd2.jpa.performance.UserInMostThreads;
@@ -20,108 +21,130 @@ import agh.bd2.jpa.pojo.ForumPost;
 import agh.bd2.jpa.pojo.ForumThread;
 import agh.bd2.jpa.pojo.ForumUser;
 import agh.bd2.jpa.xmlparser.Parser;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class App {
-	private static final int NUMBER_OF_REPETITIONS = 1;
-	private static EntityManagerFactory entityManagerFactory;
 
-	public static void setUp() {
-		entityManagerFactory = Persistence
-				.createEntityManagerFactory("agh.bd2.jpa.Hibernate_UNIT");
-		// entityManagerFactory = Persistence.createEntityManagerFactory(
-		// "agh.bd2.jpa.TopLink_UNIT" );
-	}
+    private static final int NUMBER_OF_REPETITIONS = 10;
+    private static EntityManagerFactory entityManagerFactory;
+    private static Map<String, Double> timesOfExecution = new HashMap<String, Double>();
 
-	public static void main(String[] args) throws IOException {
-		setUp();
-		EntityManager entityManager = entityManagerFactory
-				.createEntityManager();
+    public static void setUp() {
+        entityManagerFactory = Persistence
+                .createEntityManagerFactory("agh.bd2.jpa.Hibernate_UNIT");
+        // entityManagerFactory = Persistence.createEntityManagerFactory(
+        // "agh.bd2.jpa.TopLink_UNIT" );
+    }
 
-		FileWriter out = new FileWriter("performance.csv");
+    public static void main(String[] args) throws IOException {
+        setUp();
+        EntityManager entityManager = entityManagerFactory
+                .createEntityManager();
 
-		String message = "Operation,time (ns)\n";
+        FileWriter out = new FileWriter("performance.csv");
 
-		System.out.print(message);
-		out.write(message);
+        String message = "Operation,time (ns)\n";
 
-		// initializeDatabaseFromXML(entityManager, out);
-		testPerformance(entityManager, out);
+        System.out.print(message);
+        out.write(message);
 
-		entityManager.close();
-		entityManagerFactory.close();
-		out.close();
-	}
+        // initializeDatabaseFromXML(entityManager, out);
+        testPerformance(entityManager, out);
+        printResults(out);
 
-	private static void testPerformance(EntityManager entityManager,
-			FileWriter out) throws IOException {
+        entityManager.close();
+        entityManagerFactory.close();
+        out.close();
+    }
 
-		measureTime(new Threads2013Query(entityManager), out);
-		measureTime(new MostPopularInMay2013(entityManager), out);
-		measureTime(new AveragePostLength(entityManager), out);
-		measureTime(new UserInMostThreads(entityManager), out);
-		measureTime(
-				new UserCommentingGreatestNumberOfOtherUsers(entityManager),
-				out);
-		measureTime(new PostsWithFrodo(entityManager), out);
-		measureTime(new PostsFromCityK(entityManager), out);
-		measureTime(new ThirtyFifthMostOftenUsedWordInPost(entityManager), out);
-	}
+    private static void testPerformance(EntityManager entityManager,
+            FileWriter out) throws IOException {
+        for (int i = 0; i < NUMBER_OF_REPETITIONS; i++) {
+            measureTime(new Threads2013Query(entityManager), out);
+            measureTime(new MostPopularInMay2013(entityManager), out);
+            measureTime(new AveragePostLength(entityManager), out);
+            measureTime(new UserInMostThreads(entityManager), out);
+            measureTime(
+                    new UserCommentingGreatestNumberOfOtherUsers(entityManager),
+                    out);
+            measureTime(new PostsWithFrodo(entityManager), out);
+            measureTime(new PostsFromCityK(entityManager), out);
+            measureTime(new ThirtyFifthMostOftenUsedWordInPost(entityManager), out);
+            measureTime(new ThirtyFifthMostOftenUsedWordInPostByDatabase(entityManager), out);
 
-	private static void measureTime(QueryTester tester, FileWriter out)
-			throws IOException {
-		long result = 0;
+        }
+    }
 
-		for (int i = 0; i < NUMBER_OF_REPETITIONS; i++) {
-			long startTime = System.nanoTime();
-			tester.executeQuery();
-			long endTime = System.nanoTime();
-			result += endTime - startTime;
-		}
-		double endResult = (double) result / NUMBER_OF_REPETITIONS;
+    private static void measureTime(QueryTester tester, FileWriter out)
+            throws IOException {
+        long result = 0;
 
-		tester.printResult();
+        long startTime = System.nanoTime();
+        tester.executeQuery();
+        long endTime = System.nanoTime();
+        result += endTime - startTime;
 
-		String message = tester.getName() + "," + String.valueOf(endResult)
-				+ "\n";
-		System.out.print(message);
-		out.write(message);
-	}
+        double endResult = (double) result;
+        endResult /= Math.pow(10, 6);
+        String testName = tester.getName();
 
-	private static void initializeDatabaseFromXML(EntityManager entityManager,
-			FileWriter out) {
-		Parser parser = new Parser();
-		try {
-			parser.parse();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        if (timesOfExecution.containsKey(testName)) {
+            timesOfExecution.put(testName, endResult + timesOfExecution.get(testName));
+        } else {
+            timesOfExecution.put(testName, endResult);
+            tester.printResult();
+        }
 
-		long startTime = System.nanoTime();
+    }
 
-		entityManager.getTransaction().begin();
-		for (ForumUser user : parser.getUsers()) {
-			entityManager.persist(user);
-		}
-		for (ForumThread thread : parser.getThreads()) {
-			entityManager.persist(thread);
-		}
-		for (ForumPost post : parser.getPosts()) {
-			entityManager.persist(post);
-		}
+    private static void initializeDatabaseFromXML(EntityManager entityManager,
+            FileWriter out) {
+        Parser parser = new Parser();
+        try {
+            parser.parse();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-		entityManager.getTransaction().commit();
+        long startTime = System.nanoTime();
 
-		long endTime = System.nanoTime();
+        entityManager.getTransaction().begin();
+        for (ForumUser user : parser.getUsers()) {
+            entityManager.persist(user);
+        }
+        for (ForumThread thread : parser.getThreads()) {
+            entityManager.persist(thread);
+        }
+        for (ForumPost post : parser.getPosts()) {
+            entityManager.persist(post);
+        }
 
-		System.out.println("Total data loading time,"
-				+ String.valueOf(endTime - startTime));
-		try {
-			out.write("Total data loading time,"
-					+ String.valueOf(endTime - startTime) + "\n");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        entityManager.getTransaction().commit();
+
+        long endTime = System.nanoTime();
+
+        System.out.println("Total data loading time,"
+                + String.valueOf(endTime - startTime));
+        try {
+            out.write("Total data loading time,"
+                    + String.valueOf(endTime - startTime) + "\n");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private static void printResults(FileWriter out) throws IOException {
+        for (Map.Entry<String, Double> testAndTime : timesOfExecution.entrySet()) {
+            String testName = testAndTime.getKey();
+            double endResult = testAndTime.getValue() / NUMBER_OF_REPETITIONS;
+            String message = testName + "," + String.format(Locale.UK, "%1.3f", endResult)
+                    + "\n";
+            System.out.print(message);
+            out.write(message);
+        }
+    }
 }
