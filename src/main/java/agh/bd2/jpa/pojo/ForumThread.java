@@ -8,25 +8,27 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 public class ForumThread {
 	@Id
 	@GeneratedValue
 	private long id;
-	
-	@Column(columnDefinition="nvarchar(255)")
+
+	@Column(columnDefinition = "nvarchar(255)")
 	private String title;
-	
+
 	@Column
-        @Temporal(javax.persistence.TemporalType.DATE)
 	private Calendar creationDate;
 
-        public Calendar getCreationDate() {
-            return creationDate;
-        }
-	
+	public Calendar getCreationDate() {
+		return creationDate;
+	}
+
 	@ManyToOne
 	@JoinColumn(name = "author_name")
 	private ForumUser author;

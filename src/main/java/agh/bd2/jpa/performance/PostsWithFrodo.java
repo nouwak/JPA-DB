@@ -14,15 +14,22 @@ public class PostsWithFrodo extends QueryTester {
 
 	@Override
 	public void executeQuery() {
-		results = entityManager.createQuery(
-				"select count(*) from ForumPost where content like '%Frodo%'")
+		// results = entityManager.createQuery(
+		// "select count(*) from ForumPost where content like '%Frodo%'")
+		// .getResultList();
+		results = entityManager
+				.createNativeQuery(
+						"select count(*) from ForumPost where contains(content, 'Frodo')")
 				.getResultList();
 
 	}
 
 	@Override
 	public void printResult() {
-		long result = (long) results.get(0);
+		// long result = (long) results.get(0);
+		// System.out.println(this.getName() + " result: "
+		// + String.valueOf(result));
+		long result = (int) results.get(0);
 		System.out.println(this.getName() + " result: "
 				+ String.valueOf(result));
 

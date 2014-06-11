@@ -22,7 +22,7 @@ import agh.bd2.jpa.pojo.ForumUser;
 import agh.bd2.jpa.xmlparser.Parser;
 
 public class App {
-	private static final int NUMBER_OF_REPETITIONS = 2;
+	private static final int NUMBER_OF_REPETITIONS = 1;
 	private static EntityManagerFactory entityManagerFactory;
 
 	public static void setUp() {

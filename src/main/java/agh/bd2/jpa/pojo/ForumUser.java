@@ -6,9 +6,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Temporal;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 public class ForumUser {
 	public ForumUser() {
 		super();
@@ -61,14 +64,13 @@ public class ForumUser {
 	@Id
 	@GeneratedValue
 	private long id;
-	
-	@Column(columnDefinition="nvarchar(100)")
+
+	@Column(columnDefinition = "nvarchar(100)")
 	private String login;
-	
-	@Column(columnDefinition="nvarchar(100)")
+
+	@Column(columnDefinition = "nvarchar(100)")
 	private String city;
-	
+
 	@Column
-        @Temporal(javax.persistence.TemporalType.DATE)
 	private Calendar joiningDate;
 }
