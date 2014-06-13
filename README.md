@@ -3,7 +3,10 @@ JPA-DB
 
 Baza danych forum na BD2
 
-Konfiguracja
+*Prezentacja
+https://docs.google.com/presentation/d/1n6y298JSEdkX3QS2alVzJdPrzi4pDxfFRtgOY_lu0mU/edit?usp=sharing
+
+*Konfiguracja
 
 1. Import projektu do ulubionego IDE
 
